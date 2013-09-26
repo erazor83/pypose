@@ -94,9 +94,9 @@ class editor(wx.Frame):
         for t in toolFiles:
             module = __import__(t, globals(), locals(), ["NAME"])    
             name = getattr(module, "NAME")
-            id = wx.NewId()
-            self.toolIndex[id] = (t, name)
-            toolsmenu.Append(id,name)   
+            cid = wx.NewId()
+            self.toolIndex[cid] = (t, name)
+            toolsmenu.Append(cid,name)   
         toolsmenu.Append(self.ID_EXPORT,"export to AVR") # save as dialog
         menubar.Append(toolsmenu,"tools")
 
@@ -384,8 +384,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA)
 ###############################################################################
 # New Project Dialog
 class NewProjectDialog(wx.Dialog):
-    def __init__(self, parent, id, title):
-        wx.Dialog.__init__(self, parent, id, title, size=(310, 180))  
+    def __init__(self, parent, cid, title):
+        wx.Dialog.__init__(self, parent, cid, title, size=(310, 180))  
 
         panel = wx.Panel(self, -1)
         vbox = wx.BoxSizer(wx.VERTICAL)
