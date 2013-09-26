@@ -82,3 +82,6 @@ class Driver:
         ret=msgpack.unpackb(self._socket.recv())
         self.error=ret[0]
 
+    def close(self):
+        self._socket.close()
+        
