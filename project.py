@@ -94,13 +94,13 @@ class project:
             if ((prjFile[0][0]=='#') and (HAS_YAML)):
                 print("Tying to load as YAML.")
                 project_data=yaml.load("\n".join(prjFile))
-                self.name=project_data['name']
-                self.count=project_data['count']
+                self.name=      project_data['name']
+                self.count=     project_data['count']
                 self.resolution=project_data['resolution']
-                self.poses=project_data['poses']
-                self.nuke=project_data['nuke']
+                self.poses=     project_data['poses']
+                self.nuke=      project_data['nuke']
                 if 'connection' in project_data:
-                    self.nuke=project_data['connection']
+                    self.connection=project_data['connection']
             else:
                 # load robot name and servo count
                 self.name = prjFile[0].split(":")[0]
@@ -144,7 +144,7 @@ class project:
                 'count':      self.count,
                 'resolution': self.resolution,
                 'poses':      self.poses,
-                'nuke':      self.nuke,
+                'nuke':       self.nuke,
                 'connection': self.connection
             }
             prjFile.write("#pyNuke - YAML - Configuration\n")
