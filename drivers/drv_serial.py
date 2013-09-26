@@ -142,4 +142,6 @@ class Driver:
                 self.ser.write(chr(value))
         self.ser.write(chr(checksum))
         # no return info...
-
+        
+    def close(self):
+        self.ser.close()
