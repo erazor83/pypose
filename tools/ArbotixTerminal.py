@@ -21,7 +21,7 @@
 
 import wx
 from ax12 import *
-from drivers.serial import Driver
+from drivers.drv_serial import Driver
 from ToolPane import ToolPane
 
 # help phrases
