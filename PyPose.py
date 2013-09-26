@@ -202,7 +202,7 @@ class editor(wx.Frame):
         if dlg.ShowModal() == wx.ID_OK:
             self.filename = dlg.GetPath()
             self.dirname = dlg.GetDirectory()
-            print "Opening: " + self.filename            
+            print("Opening: " + self.filename)            
             self.project.load(self.filename)  
             self.SetTitle(VERSION+" - " + self.project.name)
             dlg.Destroy()
@@ -284,7 +284,7 @@ class editor(wx.Frame):
         if dlg.ShowModal() == wx.ID_OK:
             if self.port != None:
                 self.port.ser.close()
-            print "Opening port: " + self.ports[dlg.GetSelection()]
+            print("Opening port: " + self.ports[dlg.GetSelection()])
             self.openPort(self.ports[dlg.GetSelection()])
             dlg.Destroy()
     def openPort(self, port, baud=38400, interpolate=True):
@@ -309,7 +309,7 @@ class editor(wx.Frame):
     def doRelax(self, e=None):
         """ Relax servos so you can pose them. """
         if self.port != None:
-            print "PyPose: relaxing servos..."      
+            print("PyPose: relaxing servos...")      
             for servo in range(self.project.count):
                 self.port.setReg(servo+1,P_TORQUE_ENABLE, [0,])    
         else:
@@ -411,7 +411,7 @@ class NewProjectDialog(wx.Dialog):
 
 
 if __name__ == "__main__":
-    print "PyPose starting... "
+    print("PyPose starting... ")
     app = wx.App()
     frame = editor()
     app.MainLoop()
