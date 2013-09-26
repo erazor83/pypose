@@ -25,7 +25,7 @@ import wx
 import serial
 
 from ax12 import *
-from driver import Driver
+from drivers.serial import Driver
 
 from PoseEditor import *
 from SeqEditor import *
