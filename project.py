@@ -19,6 +19,16 @@
   Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 """
 
+import traceback
+import sys
+
+try:
+    import yaml
+    HAS_YAML=True
+    print("Will use YAML as new syntax for project files!")
+except:
+    HAS_YAML=False
+
 ###############################################################################
 # Pose class is a list, first element is name, rest are servo positions. 
 class pose(list):
@@ -74,41 +84,72 @@ class project:
         self.sequences = dict()
         self.nuke = ""    
         self.save = False
+        self.connection = {'type':None, 'settings':None}
 
     def load(self, filename):
-        self.poses = dict()     
-        self.sequences = dict()
-        prjFile = open(filename, "r").readlines()    
-        # load robot name and servo count
-        self.name = prjFile[0].split(":")[0]
-        self.count = int(prjFile[0].split(":")[1])
-        # load resolution of each servo in count
-        self.resolution = [int(x) for x in prjFile[0].split(":")[2:]]
-        if len(self.resolution) != self.count:
-            self.resolution = [1024 for x in range(self.count)]
-        # load poses and sequences
-        for line in prjFile[1:]:  
-            if line[0:5] == "Pose=":
-                self.poses[line[5:line.index(":")]] = pose(line[line.index(":")+1:].rstrip(),self.count)
-            elif line[0:4] == "Seq=":
-                self.sequences[line[4:line.index(":")]] = (sequence(line[line.index(":")+1:].rstrip())) 
-            elif line[0:5] == "Nuke=":
-                self.nuke = line[5:].rstrip()   
-            # these next two lines can be removed later, once everyone is moved to Ver 0.91         
+        try:
+            self.poses = dict()     
+            self.sequences = dict()
+            prjFile = open(filename, "r").readlines()    
+            if ((prjFile[0][0]=='#') and (HAS_YAML)):
+                print("Tying to load as YAML.")
+                project_data=yaml.load("\n".join(prjFile))
+                self.name=project_data['name']
+                self.count=project_data['count']
+                self.resolution=project_data['resolution']
+                self.poses=project_data['poses']
+                self.nuke=project_data['nuke']
+                if 'connection' in project_data:
+                    self.nuke=project_data['connection']
             else:
-                self.poses[line[0:line.index(":")]] = pose(line[line.index(":")+1:].rstrip(),self.count)   
-        self.save = False
+                # load robot name and servo count
+                self.name = prjFile[0].split(":")[0]
+                self.count = int(prjFile[0].split(":")[1])
+                # load resolution of each servo in count
+                self.resolution = [int(x) for x in prjFile[0].split(":")[2:]]
+                if len(self.resolution) != self.count:
+                   self.resolution = [1024 for x in range(self.count)]
+                # load poses and sequences
+                for line in prjFile[1:]:  
+                    if line[0:5] == "Pose=":
+                        self.poses[line[5:line.index(":")]] = pose(line[line.index(":")+1:].rstrip(),self.count)
+                    elif line[0:4] == "Seq=":
+                        self.sequences[line[4:line.index(":")]] = (sequence(line[line.index(":")+1:].rstrip())) 
+                    elif line[0:5] == "Nuke=":
+                        self.nuke = line[5:].rstrip()   
+                    # these next two lines can be removed later, once everyone is moved to Ver 0.91         
+                    else:
+                        self.poses[line[0:line.index(":")]] = pose(line[line.index(":")+1:].rstrip(),self.count)   
+            self.save = False
+        except Exception:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+            exception_str="\n".join('!! ' + line for line in lines)
+            print("Unable to load complete file!")
+            print(exception_str)
 
     def saveFile(self, filename):
         prjFile = open(filename, "w")
-        print>>prjFile, self.name + ":" + str(self.count) + ":" + ":".join([str(x) for x in self.resolution])
-        for p in self.poses.keys():            
-            print>>prjFile, "Pose=" + p + ":" + str(self.poses[p])
-        for s in self.sequences.keys():
-            print>>prjFile, "Seq=" + s + ": " + str(self.sequences[s])
-        if self.nuke != "":
-            print>>prjFile, "Nuke=" + self.nuke
-        self.save = False
+        if (not HAS_YAML):
+            print>>prjFile, self.name + ":" + str(self.count) + ":" + ":".join([str(x) for x in self.resolution])
+            for p in self.poses.keys():            
+                print>>prjFile, "Pose=" + p + ":" + str(self.poses[p])
+            for s in self.sequences.keys():
+                print>>prjFile, "Seq=" + s + ": " + str(self.sequences[s])
+            if self.nuke != "":
+                print>>prjFile, "Nuke=" + self.nuke
+        else:
+            project_data={
+                'name':       self.name,
+                'count':      self.count,
+                'resolution': self.resolution,
+                'poses':      self.poses,
+                'nuke':      self.nuke,
+                'connection': self.connection
+            }
+            prjFile.write("#pyNuke - YAML - Configuration\n")
+            prjFile.write(yaml.dump(project_data))
+            self.save = False
 
     def new(self, nName, nCount, nResolution):
         self.poses = dict()
