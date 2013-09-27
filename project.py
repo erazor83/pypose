@@ -97,7 +97,8 @@ class project:
                 self.name=      project_data['name']
                 self.count=     project_data['count']
                 self.resolution=project_data['resolution']
-                self.poses=     project_data['poses']
+                for c_pose in project_data['poses']:
+                    self.poses[c_pose[0]]=pose(c_pose[1:],self.count)
                 self.nuke=      project_data['nuke']
                 if 'connection' in project_data:
                     self.connection=project_data['connection']
@@ -139,16 +140,25 @@ class project:
             if self.nuke != "":
                 print>>prjFile, "Nuke=" + self.nuke
         else:
+            #convert poses to a list to keep index
+            c_poses=[]
+            for pose_name in self.poses.keys():
+                c_poses.append([pose_name]+self.poses[pose_name])
+            #convert sequences to a list to keep index
+            c_sequences=[]
+            for seq_name in self.sequences.keys():
+                c_sequences.append([seq_name]+self.sequences[seq_name])
             project_data={
                 'name':       self.name,
                 'count':      self.count,
                 'resolution': self.resolution,
-                'poses':      self.poses,
+                'poses':      c_poses,
+                'sequences':  c_sequences,
                 'nuke':       self.nuke,
                 'connection': self.connection
             }
             prjFile.write("#pyNuke - YAML - Configuration\n")
-            prjFile.write(yaml.dump(project_data))
+            prjFile.write(yaml.safe_dump(project_data,tags=None))
             self.save = False
 
     def new(self, nName, nCount, nResolution):
