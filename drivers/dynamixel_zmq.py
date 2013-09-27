@@ -52,22 +52,23 @@ class Driver:
     def execute(self, index, ins, params):
         """ Send an instruction to a device. """
         print('execute',index, ins, params)
-        return False
+        self._socket.send(msgpack.packb([ins, index]+params))
+        ret=msgpack.unpackb(self._socket.recv())
+        return ret
 
     def setReg(self, index, regstart, values):
         """ Set the value of registers. Should be called as such:
         ax12.setReg(1,1,(0x01,0x05)) """ 
         print('setReg',index,regstart,values)
-        self._socket.send(msgpack.packb([DYNAMIXEL_RQ_REG_WRITE, index, len(values)]+values))
+        self._socket.send(msgpack.packb([DYNAMIXEL_RQ_WRITE_DATA, index, regstart,len(values)]+values))
         ret=msgpack.unpackb(self._socket.recv())
-
         return self.error
 
     def getReg(self, index, regstart, rlength):
         """ Get the value of registers, should be called as such:
         ax12.getReg(1,1,1) """
         print('getReg',index,regstart,rlength)
-        self._socket.send(msgpack.packb([DYNAMIXEL_RQ_READ_DATA, regstart, rlength]))
+        self._socket.send(msgpack.packb([DYNAMIXEL_RQ_READ_DATA, index,regstart, rlength]))
         ret=msgpack.unpackb(self._socket.recv())
         self.error=ret[0]
         return ret[1:]
@@ -81,7 +82,7 @@ class Driver:
         reg_count=len(vals[0])
         for cluster in vals:
           data=data+cluster
-        self._socket.send(msgpack.packb([DYNAMIXEL_RQ_SYNC_WRITE, regstart, id_count,reg_count]+data))
+        self._socket.send(msgpack.packb([DYNAMIXEL_RQ_SYNC_WRITE, regstart]+data))
         ret=msgpack.unpackb(self._socket.recv())
         self.error=ret[0]
 
