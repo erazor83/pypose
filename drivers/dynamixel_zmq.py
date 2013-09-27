@@ -51,12 +51,13 @@ class Driver:
 
     def execute(self, index, ins, params):
         """ Send an instruction to a device. """
-        print(index, ins, params)
+        print('execute',index, ins, params)
         return False
 
     def setReg(self, index, regstart, values):
         """ Set the value of registers. Should be called as such:
         ax12.setReg(1,1,(0x01,0x05)) """ 
+        print('setReg',index,regstart,values)
         self._socket.send(msgpack.packb([DYNAMIXEL_RQ_REG_WRITE, index, len(values)]+values))
         ret=msgpack.unpackb(self._socket.recv())
 
@@ -65,6 +66,7 @@ class Driver:
     def getReg(self, index, regstart, rlength):
         """ Get the value of registers, should be called as such:
         ax12.getReg(1,1,1) """
+        print('getReg',index,regstart,rlength)
         self._socket.send(msgpack.packb([DYNAMIXEL_RQ_READ_DATA, regstart, rlength]))
         ret=msgpack.unpackb(self._socket.recv())
         self.error=ret[0]
@@ -73,6 +75,7 @@ class Driver:
     def syncWrite(self, regstart, vals):
         """ Set the value of registers. Should be called as such:
         ax12.syncWrite(reg, ((id1, val1, val2), (id2, val1, val2))) """ 
+        print('syncWrite',regstart,vals)
         data=[]
         id_count=len(vals)
         reg_count=len(vals[0])

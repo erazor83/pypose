@@ -163,7 +163,7 @@ class editor(wx.Frame):
 
         # editor area       
         self.sb = self.CreateStatusBar(2)
-        self.sb.SetStatusWidths([-1,150])
+        self.sb.SetStatusWidths([-1,250])
         self.sb.SetStatusText('not connected',1)
 
         self.loadTool()
@@ -318,6 +318,13 @@ class editor(wx.Frame):
                 if not HAS_DRIVER_DZMQ:
                     print("Connection type not supported!")
                     error=True
+                    
+                con_uri=self.project.connection['settings']['dynamixel_zmq']['uri']
+                self.driver = dynamixel_zmq_Driver(
+                    con_uri,
+                    True
+                )
+                status_text="ZMQ: %s"%(con_uri)
                 
 
         except Exception as e:
